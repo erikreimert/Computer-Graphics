@@ -31,39 +31,3 @@ function main()
   	// Draw a point
   	gl.drawArrays(gl.POINTS, 0, points.length);
 }
-<!DOCTYPE html>
-<html>
-<head>
-
-
-</head>
-
-<body>
-    <h1>Polibook Erik Reimert</h1>
-    <h2 id = "val"> Read</h2>
-//add open gl box
-  <form>
-    <input type="file" name = "draw">
-  </form>
-
-</body>
-
-<script>
-window.addEventListener("keydown", checkKeyPressed, false);
-function checkKeyPressed(e) {
-    if (e.keyCode == "70" || e.keyCode == "68") {
-        mode()
-    }
-}
-
-function mode(){ //changes the mode from read to write
-    if(document.getElementById('val').innerHTML = 'Read'){
-        return document.getElementById('val').innerHTML = 'Write';
-        //change mode to write
-      } else {
-        return document.getElementById('val').innerHTML = 'Read';
-        //change mode to Read
-      }
-    }
-</script>
-</html>
