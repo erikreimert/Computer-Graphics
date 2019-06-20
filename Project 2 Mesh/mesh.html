@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mesh Erik Reimert</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+
+    <script id="vshader" type="x-shader/x-vertex">
+    attribute vec4 vPos;
+    uniform mat4 projMatrix;
+    uniform mat4 modelMatrix;
+	uniform mat4 viewMatrix;
+	uniform mat4 pulseMatrix;
+    void main() {
+      gl_Position = projMatrix * viewMatrix  * pulseMatrix * modelMatrix * vPos;
+    }
+    </script>
+
+    <script id="fshader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform vec4 fColor;
+    void main() {
+      gl_FragColor = fColor;
+    }
+    </script>
+
+    <script src="../Project 2 Mesh/lib/webgl-utils.js"></script>
+    <script src="../Project 2 Mesh/lib/initShaders.js"></script>
+    <script src="../Project 2 Mesh/lib/MV.js"></script>
+
+
+
+    <script src="mesh.js"></script>
+
+  </head>
+
+  <body onload="main()">
+
+
+      <h1 style="text-align:center">Mesh Erik Reimert</h1>
+
+      <h4 style="text-align:left">Controls</h4>
+      <p>X = +x</p>
+      <p>C = -x</p>
+      <p>Y = +y</p>
+      <p>U = -y</p>
+      <p>Z = +z</p>
+      <p>A = -z</p>
+      <p>R = rotation</p>
+      <p>B = pulse</p>
+      <p><label> Movement Speed
+        <input type="text" id="ms" value="0.03">
+      </label></p>
+      <p><label> Pulse Speed
+        <input type="text" id="ps" value="0.002">
+      </label></p>
+      <p><label> Pulse Distance
+        <input type="text" id="pd" value="0.2">
+      </label></p>
+
+      <div id="webgl" style="text-align:center"></div>
+
+    <form style="text-align:left">
+      <input type="file" id='file' name = "file" accept=".ply" >
+    </form>
+
+  </body>
+</html>
