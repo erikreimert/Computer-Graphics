@@ -176,6 +176,24 @@ function main(){
 	gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0 );
 	gl.enableVertexAttribArray( vTexCoord );
 
+
+  floor = new Image();
+  floor.crossOrigin = "";
+  floor.src = "http://web.cs.wpi.edu/~jmcuneo/grass.bmp";
+  floor.onload = () => {
+    configureTexture(floor, "floor");
+    texture.aIsLoaded = true;
+  };
+
+  wall = new Image();
+	wall.crossOrigin = "";
+	wall.src = "http://web.cs.wpi.edu/~jmcuneo/stones.bmp";
+	wall.onload = () => {
+			configureTexture(wall, "wall");
+			texture.aIsLoaded = true;
+	};
+
+
   // Add input handling
   document.addEventListener("keypress", keyPress, false);
 
@@ -254,6 +272,7 @@ function start() {
                 "shininess"), 500.0);
             stack.push(mvMatrix);
 
+            createShadow(mvMatrix, 0);
             cDraw(mainCube, shade);
 
             mvMatrix = stack.pop();
@@ -286,6 +305,7 @@ function start() {
                     "shininess"), 500.0);
                 stack.push(mvMatrix);
 
+                createShadow(mvMatrix, 1);
                 sDraw(shade);
 
                 mvMatrix = stack.pop();
@@ -309,6 +329,7 @@ function start() {
                         "shininess"), 500.0);
                     stack.push(mvMatrix);
 
+                    createShadow(mvMatrix, 2);
                     cDraw(mainCube, shade);
 
                     mvMatrix = stack.pop();
@@ -329,6 +350,7 @@ function start() {
                         "shininess"), 500.0);
                     stack.push(mvMatrix);
 
+                    createShadow(mvMatrix, 2);
                     sDraw(shade);
 
                     mvMatrix = stack.pop();
@@ -362,6 +384,7 @@ function start() {
                     "shininess"), 500.0);
                 stack.push(mvMatrix);
 
+                createShadow(mvMatrix, 1);
                 cDraw(mainCube, shade);
 
                 mvMatrix = stack.pop();
@@ -385,6 +408,7 @@ function start() {
                         "shininess"), 500.0);
                     stack.push(mvMatrix);
 
+                    createShadow(mvMatrix, 2);
                     cDraw(mainCube, shade);
 
                     mvMatrix = stack.pop();
@@ -405,6 +429,7 @@ function start() {
                         "shininess"), 500.0);
                     stack.push(mvMatrix);
 
+                    createShadow(mvMatrix, 2);
                     sDraw(shade);
 
                     mvMatrix = stack.pop();
@@ -520,6 +545,7 @@ function pDraw(plane, color, category = "wall") {
     gl.vertexAttribPointer( vTexCoord, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray( vTexCoord );
 
+
     if (textures) {
         useTexture = 1.0;
         gl.vertexAttrib1f(gl.getAttribLocation(shader.id, "useTexture"), useTexture);
@@ -545,9 +571,32 @@ function drawLine(line) {
   gl.drawArrays( gl.LINES, 0, line.length );
 }
 
+//////// TEXTURE SETTINGS /////////
+function configureTexture ( image, name = "wall" ) {
+  // create texture object
+  if (name === "wall") {
+    texture.a = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture.a);
+  }
+  else {
+    texture.b = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture.b);
+  }
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+
+  gl.texImage2D( gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image );
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+  gl.uniform1i(gl.getUniformLocation(shader.id, "texture"), 0);
+}
+
 /////////class stuff
 
-//sphere
+//sphere example from class
 
 function triangle(a, b, c) {
 
@@ -593,7 +642,7 @@ function tetrahedron(a, b, c, d, n) {
   divideTriangle(d, c, a, n);
 }
 
-//cube
+//cube example from class
 
 function cube(){
     var verts = [];
@@ -651,7 +700,6 @@ function plane(size = 10) {
     ];
 }
 
-///////////
 
 // calculate flat normals
 function calcFlat(points) {
@@ -707,6 +755,27 @@ function newell(polygon){
     }
 
     return vec4(xNormal, yNormal, zNormal, 0.0);
+}
+
+//creates a shadow
+function createShadow(tempMatrix, level) {
+    var light = mult(inverse(tempMatrix), lightPosition);
+
+    var m = mat4();
+    m[3][3] = 0;
+    m[3][1] = -1/light[1];
+
+    var shadowModelView = tempMatrix;
+    shadowModelView = mult(shadowModelView, translate(light[0], light[1], light[2]));
+    shadowModelView = mult(shadowModelView, m);
+    shadowModelView = mult(shadowModelView, translate(-light[0], -light[1], -light[2]));
+
+    var scalar = -(1+((3-level)*2));
+
+    var lightVec = normalize(vec3(lightPosition[0], lightPosition[1], lightPosition[2]));
+    shadowModelView = mult(translate(scalar*1.3 * lightVec[0], scalar * lightVec[1], scalar*2 * lightVec[2]), shadowModelView);
+
+    gl.uniformMatrix4fv(modelView, false, flatten(shadowModelView));
 }
 
 /////////////////////////////////////////////////////////////////////////////
